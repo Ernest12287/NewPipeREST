@@ -8,8 +8,8 @@ COPY --chown=gradle:gradle src ./src
 # Download dependencies first (for better caching)
 RUN gradle dependencies --no-daemon || true
 
-# Build the JAR with full error output
-RUN gradle jar --no-daemon --stacktrace --info 2>&1 | tee /tmp/build.log || (cat /tmp/build.log && exit 1)
+# Build the JAR
+RUN gradle jar --no-daemon --stacktrace
 
 # Runtime stage
 FROM eclipse-temurin:11-jre-jammy
