@@ -15,9 +15,10 @@ dependencies {
     implementation 'io.javalin:javalin:3.13.13'
     implementation 'org.slf4j:slf4j-simple:1.7.31'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-    implementation 'com.github.teamnewpipe:NewPipeExtractor:v0.21.16'
     
-    // Changed from testCompile to testImplementation (modern Gradle)
+    // FIXED: Use the correct JitPack format with dots
+    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.24.8'
+    
     testImplementation 'junit:junit:4.12'
 }
 
