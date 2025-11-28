@@ -1,9 +1,19 @@
-FROM gradle:7.6-jdk11 AS build
-COPY --chown=gradle:gradle . /home/gradle/src
+# Build stage
+FROM gradle:7.6.6-jdk11 AS build
 WORKDIR /home/gradle/src
-RUN gradle jar --no-daemon
+COPY --chown=gradle:gradle build.gradle settings.gradle ./
+COPY --chown=gradle:gradle gradle ./gradle
+COPY --chown=gradle:gradle src ./src
 
+# Download dependencies first (for better caching)
+RUN gradle dependencies --no-daemon
+
+# Build the JAR
+RUN gradle jar --no-daemon --stacktrace
+
+# Runtime stage
 FROM eclipse-temurin:11-jre-jammy
+WORKDIR /app
+COPY --from=build /home/gradle/src/build/libs/*.jar ./app.jar
 EXPOSE 8080
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/app.jar
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
