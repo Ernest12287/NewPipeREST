@@ -3,13 +3,11 @@ plugins {
     id 'application'
 }
 
-group 'org.example'
+group 'org.yausername'
 version '1.0-SNAPSHOT'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
@@ -21,22 +19,21 @@ dependencies {
     implementation 'com.sparkjava:spark-core:2.9.4'
     
     // Logging
-    implementation 'org.slf4j:slf4j-simple:1.7.31'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
     
-    // JSON processing
+    // JSON
     implementation 'com.google.code.gson:gson:2.10.1'
     
-    // OkHttp for networking
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    // HTTP Client
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     
-    // Try v0.22.1 instead - closer to your original v0.21.16
-    implementation 'com.github.TeamNewPipe:NewPipeExtractor:v0.22.1'
+    // NewPipeExtractor v0.24.8 - USE THIS VERSION
+    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.24.8'
     
-    // FindBugs annotations
+    // Annotations
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     
-    // Testing
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 application {
@@ -44,6 +41,7 @@ application {
 }
 
 jar {
+    archiveBaseName = 'NewPipeREST'
     manifest {
         attributes 'Main-Class': 'org.yausername.newpiperest.App'
     }
@@ -51,9 +49,4 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-Xlint:deprecation'
 }
