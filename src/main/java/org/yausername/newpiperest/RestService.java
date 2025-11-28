@@ -50,7 +50,6 @@ public class RestService {
     public String getSearchPage(int serviceId, String searchString, List<String> contentFilters, String sortFilter,
             String pageUrl) throws ParsingException, ExtractionException, IOException {
         StreamingService service = NewPipe.getService(serviceId);
-        // FIXED: pageUrl is now a Page object
         Page page = new Page(pageUrl);
         InfoItemsPage<InfoItem> pageResult = SearchInfo.getMoreItems(service,
                 service.getSearchQHFactory().fromQuery(searchString, contentFilters, sortFilter), page);
@@ -74,7 +73,6 @@ public class RestService {
     public String getKioskPage(int serviceId, String kioskId, String pageUrl) throws ExtractionException, IOException {
         StreamingService service = NewPipe.getService(serviceId);
         String url = service.getKioskList().getListLinkHandlerFactoryByType(kioskId).getUrl(kioskId);
-        // FIXED: pageUrl is now a Page object
         Page page = new Page(pageUrl);
         InfoItemsPage<StreamInfoItem> pageResult = KioskInfo.getMoreItems(service, url, page);
         return gson.toJson(pageResult);
@@ -92,7 +90,6 @@ public class RestService {
     
     public String getPlaylistPage(@Nonnull String url, @Nonnull String pageUrl) throws IOException, ExtractionException {
         StreamingService service = NewPipe.getServiceByUrl(url);
-        // FIXED: pageUrl is now a Page object
         Page page = new Page(pageUrl);
         InfoItemsPage<StreamInfoItem> pageResult = PlaylistInfo.getMoreItems(service, url, page);
         return gson.toJson(pageResult);
@@ -104,11 +101,8 @@ public class RestService {
     }
     
     public String getChannelPage(@Nonnull String url, @Nonnull String pageUrl) throws IOException, ExtractionException {
-        // FIXED: ChannelInfo.getMoreItems no longer exists in v0.24.8
-        // Need to use ChannelTabInfo instead
         ChannelInfo channelInfo = ChannelInfo.getInfo(url);
         
-        // Get the first tab (usually videos)
         if (channelInfo.getTabs() != null && !channelInfo.getTabs().isEmpty()) {
             ChannelTabInfo tabInfo = ChannelTabInfo.getInfo(
                 NewPipe.getServiceByUrl(url), 
@@ -116,7 +110,8 @@ public class RestService {
             );
             
             Page page = new Page(pageUrl);
-            InfoItemsPage<StreamInfoItem> pageResult = ChannelTabInfo.getMoreItems(
+            // Changed to InfoItemsPage<InfoItem> to match API
+            InfoItemsPage<InfoItem> pageResult = ChannelTabInfo.getMoreItems(
                 NewPipe.getServiceByUrl(url), 
                 channelInfo.getTabs().get(0), 
                 page
@@ -124,7 +119,8 @@ public class RestService {
             return gson.toJson(pageResult);
         }
         
-        return gson.toJson(new InfoItemsPage<>(null, new ArrayList<>(), null));
+        // Explicitly specify type parameter
+        return gson.toJson(new InfoItemsPage<InfoItem>(null, new ArrayList<InfoItem>(), null));
     }
     
     public String getCommentsInfo(@Nonnull String url) throws IOException, ExtractionException {
@@ -134,7 +130,6 @@ public class RestService {
     
     public String getCommentsPage(@Nonnull String url, @Nonnull String pageUrl) throws IOException, ExtractionException {
         CommentsInfo info = CommentsInfo.getInfo(url);
-        // FIXED: pageUrl is now a Page object
         Page page = new Page(pageUrl);
         InfoItemsPage<CommentsInfoItem> pageResult = CommentsInfo.getMoreItems(info, page);
         return gson.toJson(pageResult);
