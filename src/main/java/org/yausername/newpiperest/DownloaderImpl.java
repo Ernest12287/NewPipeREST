@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.schabi.newpipe.extractor.downloader.Downloader;
@@ -13,7 +14,6 @@ import org.schabi.newpipe.extractor.downloader.Request;
 import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -29,15 +29,9 @@ public class DownloaderImpl extends Downloader {
     private DownloaderImpl(OkHttpClient.Builder builder) {
         this.client = builder
                 .readTimeout(30, TimeUnit.SECONDS)
-                //.cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"), 16 * 1024 * 1024))
                 .build();
     }
 
-    /**
-     * It's recommended to call exactly once in the entire lifetime of the application.
-     *
-     * @param builder if null, default builder will be used
-     */
     public static DownloaderImpl init(@Nullable OkHttpClient.Builder builder) {
         return instance = new DownloaderImpl(builder != null ? builder : new OkHttpClient.Builder());
     }
@@ -54,12 +48,6 @@ public class DownloaderImpl extends Downloader {
         mCookies = cookies;
     }
 
-    /**
-     * Get the size of the content that the url is pointing by firing a HEAD request.
-     *
-     * @param url an url pointing to the content
-     * @return the size of the content, in bytes
-     */
     public long getContentLength(String url) throws IOException {
         try {
             final Response response = head(url);
@@ -101,7 +89,7 @@ public class DownloaderImpl extends Downloader {
     }
 
     @Override
-    public Response execute(@NonNull Request request) throws IOException, ReCaptchaException {
+    public Response execute(@Nonnull Request request) throws IOException, ReCaptchaException {
         final String httpMethod = request.httpMethod();
         final String url = request.url();
         final Map<String, List<String>> headers = request.headers();
@@ -132,14 +120,12 @@ public class DownloaderImpl extends Downloader {
             } else if (headerValueList.size() == 1) {
                 requestBuilder.header(headerName, headerValueList.get(0));
             }
-
         }
 
         final okhttp3.Response response = client.newCall(requestBuilder.build()).execute();
 
         if (response.code() == 429) {
             response.close();
-
             throw new ReCaptchaException("reCaptcha Challenge requested", url);
         }
 
@@ -150,6 +136,13 @@ public class DownloaderImpl extends Downloader {
             responseBodyToReturn = body.string();
         }
 
-        return new Response(response.code(), response.message(), response.headers().toMultimap(), responseBodyToReturn);
+        // FIXED: Response constructor now requires 5 parameters (added responseUrl)
+        return new Response(
+            response.code(), 
+            response.message(), 
+            response.headers().toMultimap(), 
+            responseBodyToReturn,
+            response.request().url().toString()  // responseUrl parameter
+        );
     }
 }
