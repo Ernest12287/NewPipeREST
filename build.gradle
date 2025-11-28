@@ -6,32 +6,55 @@ plugins {
 group 'org.example'
 version '1.0-SNAPSHOT'
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation 'io.javalin:javalin:3.13.13'
-    implementation 'org.slf4j:slf4j-simple:1.7.31'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+    // Spark Framework (NOT Javalin - your code uses Spark!)
+    implementation 'com.sparkjava:spark-core:2.9.4'
     
-    // FIXED: Use the correct JitPack format with dots
+    // Logging
+    implementation 'org.slf4j:slf4j-simple:1.7.31'
+    
+    // JSON processing
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // OkHttp for networking
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    
+    // NewPipeExtractor
     implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.24.8'
     
+    // FindBugs annotations (required by your code)
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    
+    // Testing
     testImplementation 'junit:junit:4.12'
 }
 
 application {
-    mainClassName = 'org.schabi.newpiperest.Main'
+    // FIXED: Correct main class path
+    mainClass = 'org.yausername.newpiperest.App'
 }
 
 jar {
     manifest {
-        attributes 'Main-Class': 'org.schabi.newpiperest.Main'
+        // FIXED: Correct main class path
+        attributes 'Main-Class': 'org.yausername.newpiperest.App'
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
