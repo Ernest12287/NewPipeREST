@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    // Spark Framework (NOT Javalin - your code uses Spark!)
+    // Spark Framework
     implementation 'com.sparkjava:spark-core:2.9.4'
     
     // Logging
@@ -29,10 +29,10 @@ dependencies {
     // OkHttp for networking
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     
-    // NewPipeExtractor
-    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.24.8'
+    // Try v0.22.1 instead - closer to your original v0.21.16
+    implementation 'com.github.TeamNewPipe:NewPipeExtractor:v0.22.1'
     
-    // FindBugs annotations (required by your code)
+    // FindBugs annotations
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     
     // Testing
@@ -40,13 +40,11 @@ dependencies {
 }
 
 application {
-    // FIXED: Correct main class path
     mainClass = 'org.yausername.newpiperest.App'
 }
 
 jar {
     manifest {
-        // FIXED: Correct main class path
         attributes 'Main-Class': 'org.yausername.newpiperest.App'
     }
     from {
@@ -57,4 +55,5 @@ jar {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'
 }
