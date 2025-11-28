@@ -3,7 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle jar --no-daemon
 
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre-jammy
 EXPOSE 8080
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/app.jar
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
